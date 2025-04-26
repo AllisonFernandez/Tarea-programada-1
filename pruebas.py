@@ -59,28 +59,65 @@ def codigossedes(): #forma los códigos correspondientes de las sedes
         codigo="0"+str(i+1)
         codigos.append(codigo)
     return codigos
-def carne(pannoinicial,pannofinal,px,cy): #crear los carnets
+def carne(pannoinicial,pannofinal,listaEstudiantes): #crear los carnets
     listaannos=[]
     listasedes=codigossedes()
-    lista=formar_listadenombres(px,cy)
     listacarnets=[]
-    for n in lista:
+    for a in range(pannoinicial,pannofinal+1):
+        listaannos.append(a)
+    for n in listaEstudiantes:
         numrandom=""
-        for a in range(pannoinicial,pannofinal):
-            listaannos.append(a)
         for e in range(4):
             numrandom+=str(random.randint(1,9))
         anno=str(random.choice(listaannos))
         sede=random.choice(listasedes)
         carnet=anno+sede+numrandom
-        listacarnets.append(carnet)
+        if carnet not in listacarnets: 
+            listacarnets.append(carnet)
     return listacarnets
-def formar_listaFinal(): #va a formar la lista final con los correos y carnets
-    listaFinal=[]
-    listacarnets=carne()
-    return""
-def bd(): #crea la bd
-    lista_bd=formar_listaFinal() ##---------------
+def formarCorreo(carnets,listaEstudiantes):
+    listacorreos=[]
+    for i in range(len(carnets)): 
+        estudiante=listaEstudiantes[i]
+        carnet=carnets[i]
+        nombrecompleto=estudiante[0]
+        nombre=nombrecompleto[0]
+        inicial=nombre[0].lower()
+        apellido=nombrecompleto[1].lower()
+        numero=carnet[6:]
+        correo=inicial+apellido+numero+"@estudiantec.ac.cr"
+        if correo not in listacorreos:
+            listacorreos.append(correo)
+    return listacorreos
+def generarNotas(pw,pb,pa): #Falta agregar lo del redondeo
+    lista=[]
+    nota1=random.randint(0,100)
+    nota2=random.randint(0,100)
+    nota3=random.randint(0,100)
+    promedio=(nota1*(pw/100))+(nota2*(pb/100))+(nota3*(pa/100))
+    lista.append(nota1)
+    lista.append(nota2)
+    lista.append(nota3)
+    lista.append(promedio)
+    return tuple(lista)
+def asignarNotas(pw,pb,pa,listaEstudiantes):
+    listaNotas=[]
+    for i in range(len(listaEstudiantes)):
+        notas=generarNotas(pw,pb,pa)
+        listaNotas.append(notas)
+    return listaNotas
+def formar_listaFinal(pannoInicial,pannoFinal,px,cy,pPorcentaje1,pPorcentaje2,pPorcentaje3): #va a formar la lista final con los correos y carnets
+    listaEstudiantes=formar_listadenombres(px,cy)
+    listaCarnets=carne(pannoInicial,pannoFinal,listaEstudiantes)
+    listaCorreos=formarCorreo(listaCarnets,listaEstudiantes)
+    listaNotas=asignarNotas(pPorcentaje1,pPorcentaje2,pPorcentaje3,listaEstudiantes)
+    for i in range(len(listaEstudiantes)):
+        listaEstudiantes[i].append(listaCarnets[i])
+        listaEstudiantes[i].append(listaCorreos[i])
+        listaEstudiantes[i].append(listaNotas[i])
+    return listaEstudiantes
+def bd(pannoInicial,pannoFinal,px,cy,pPorcentaje1,pPorcentaje2,pPorcentaje3): #crea la bd
+    lista_bd=formar_listaFinal(pannoInicial,pannoFinal,px,cy,pPorcentaje1,pPorcentaje2,pPorcentaje3) ##---------------
     base=open("basesnombres.txt","w")
     for i in lista_bd:
         for a in i:
@@ -92,13 +129,21 @@ def es():#entradas y salidas
     px=int(input("Cantidad: "))
     py=int(input("Porcentaje: "))
     cy=int(px*(py/100))
+    a=True
     while a==True:
         annoInicial=int(input("Digite el año inicial: "))
         annoFinal=int(input("Digite el año final: "))
         if annoInicial<=annoFinal:
             break
         print("El año incial debe ser menor o igual al año final.")
-    return bd(px,cy)
+    while a==True:
+        porcentaje1=int(input("Digite el primer porcentaje: "))
+        porcentaje2=int(input("Digite el segundo porcentaje: "))
+        porcentaje3=int(input("Digite el tecer porcentaje: "))
+        if porcentaje1+porcentaje2+porcentaje3==100:
+            break
+        print("Los tres porcentajes deben sumar 100.")
+    return bd(annoInicial,annoFinal,px,cy,porcentaje1,porcentaje2,porcentaje3)
 
 #Programa principal 
 es()
