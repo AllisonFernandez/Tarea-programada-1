@@ -121,7 +121,10 @@ def bd(pannoInicial,pannoFinal,px,cy,pPorcentaje1,pPorcentaje2,pPorcentaje3): #c
     base=open("basesnombres.txt","w")
     for i in lista_bd:
         for a in i:
-            base.write(f"{a},")
+            if a==i[-1]:
+                base.write(f"{a}")
+            else:
+                base.write(f"{a},")
         base.write("\n")
     base.close()
     return ""
